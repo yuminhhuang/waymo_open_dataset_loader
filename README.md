@@ -1,6 +1,4 @@
-# Pytorch dataset loader for Waymo Open Dataset LiDAR Segmentation task
-- version v2.0.0 of dataset
-- with RANGE image projection
+# Pytorch dataset loader of Waymo Open Dataset v2 for LiDAR Segmentation and range image projection
 
 # Waymo Open Dataset
 [Dataset](https://waymo.com/open/) [Download](https://waymo.com/open/download/) [Documentation](https://github.com/waymo-research/waymo-open-dataset)
@@ -57,6 +55,7 @@ dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False
 pointcloud, sem_label, inst_label = dataset.loadDataByIndex(0)
 extrinsic, inclination = dataset.loadCalibrationByIndex(0)
 proj_pointcloud, proj_range, proj_idx, proj_mask = RangeProjection(64, 2650).doProjection(pointcloud, extrinsic, inclination)
+
 import matplotlib.pyplot as plt
 plt.imshow(proj_range)
 plt.show()
