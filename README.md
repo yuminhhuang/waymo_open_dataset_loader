@@ -1,9 +1,25 @@
 # Pytorch dataset loader of Waymo Open Dataset v2 for LiDAR Segmentation and range image projection
+Convert the `.parquet` files from v2.0.0 dataset into pointclouds and semantic and instance labels for LiDAR scans. This will be useful for LiDAR scans visualization, semantic segmentation learning with pytorch framework.
+This tools will create a preprocessed dataset with:
+- training set:
+  - 798 sequences
+  - 158081 pointclouds
+  - 23691 key pointclouds
+  - 23691 labels
+- valisation set:
+  - 202 sequences
+  - 39987 pointclouds
+  - 5976 key pointclouds
+  - 5976 labels
+- testing set:
+  - 16 sequences
+  - 3101 pointclouds
+Besides, the corresponing poses are generated. If you want to include more information from dataset to facilitate your task, change preoprocess.py like how `poses` do and change dataset.py acorrddingly.
 
 # Waymo Open Dataset
 [Dataset](https://waymo.com/open/) [Download](https://waymo.com/open/download/) [Documentation](https://github.com/waymo-research/waymo-open-dataset)
 
-## This tools use the v2.0.0 version of dataset
+## This tool use the v2.0.0 version of dataset
 [v2 documentation](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_v2.ipynb)
 
 # Requirements
@@ -44,6 +60,9 @@ pcd.points = o3d.utility.Vector3dVector(np.asarray(pointcloud[:, :3], dtype=np.f
 pcd.colors = o3d.utility.Vector3dVector(np.asarray(dataset.sem_color_lut[sem_label], dtype=np.float32))
 o3d.visualization.draw_geometries([pcd])
 ```
+
+## Different between `has_label=True` and `has_label=False`
+The parameter has_label decides how many pointcloud will be loaded. If `has_label=True`, the subset of pointclouds in a sequence with semanticn labels will be loaded. If `has_label=False`, all the pointcloud in the sequences will be loaded. Usually, the former is used with training and validation. And the latter is used for inference where no annotation is needed.
 
 ## Project pointclouds to RANGE images
 ```python
