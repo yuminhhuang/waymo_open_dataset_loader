@@ -14,7 +14,8 @@ This tools will create a preprocessed dataset with:
 - testing set:
   - 16 sequences
   - 3101 pointclouds
-Besides, the corresponing poses are generated. If you want to include more information from dataset to facilitate your task, change preoprocess.py like how `poses` do and change dataset.py acorrddingly.
+
+Besides, the corresponing `poses` are generated. If you want to include more information from dataset to facilitate your task, change preoprocess.py just like how `poses` do and change dataset.py acorrddingly.
 
 # Waymo Open Dataset
 [Dataset](https://waymo.com/open/) [Download](https://waymo.com/open/download/) [Documentation](https://github.com/waymo-research/waymo-open-dataset)
@@ -62,7 +63,11 @@ o3d.visualization.draw_geometries([pcd])
 ```
 
 ## Different between `has_label=True` and `has_label=False`
-The parameter has_label decides how many pointcloud will be loaded. If `has_label=True`, the subset of pointclouds in a sequence with semanticn labels will be loaded. If `has_label=False`, all the pointcloud in the sequences will be loaded. Usually, the former is used with training and validation. And the latter is used for inference where no annotation is needed.
+The parameter has_label decides how many pointcloud will be loaded.
+- If `has_label=True`, the subset of pointclouds in a sequence with semanticn labels will be loaded.
+- If `has_label=False`, all the pointcloud in the sequences will be loaded. 
+  
+Usually, the former is used with training and validation. And the latter is used for inference where no annotation is needed.
 
 ## Project pointclouds to RANGE images
 ```python
