@@ -15,7 +15,7 @@
 # Usage
 ## Dataset Download
 Downloads [waymo_open_dataset_v_2_0_0](https://console.cloud.google.com/storage/browser/waymo_open_dataset_v_2_0_0) or use the scripts below for a mini version of waymo_open_dataset_v_2_0_0.
-```
+```bash
 cd waymo-mini
 ./run.sh
 ```
@@ -30,13 +30,15 @@ This will create a preprocessed dataset in the directory where your dataset loca
 
 ## Load pointclouds and labels for training
 ```python
-from waymo_open_dataset.loader.dataset import Waymo
+from waymo_open_dataset_loader.dataset import Waymo
 
 data_path = '/home/yuminghuang/dataset/waymo-mini'
 dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False, has_label=True)
 pointcloud, sem_label, inst_label = dataset.loadDataByIndex(index=0)
 print("pointcloud, sem_label, inst_label", pointcloud, sem_label, inst_label)
+
 import open3d as o3d
+import numpy as np
 pcd = o3d.geometry.PointCloud()
 pcd.points = o3d.utility.Vector3dVector(np.asarray(pointcloud[:, :3], dtype=np.float32))
 pcd.colors = o3d.utility.Vector3dVector(np.asarray(dataset.sem_color_lut[sem_label], dtype=np.float32))
@@ -44,9 +46,9 @@ o3d.visualization.draw_geometries([pcd])
 ```
 
 ## Project pointclouds to RANGE images
-```
-from waymo_open_dataset.loader.dataset import Waymo
-from waymo_open_dataset.loader.projection import RangeProjection
+```python
+from waymo_open_dataset_loader.dataset import Waymo
+from waymo_open_dataset_loader.projection import RangeProjection
 
 data_path = '/home/yuminghuang/dataset/waymo-mini'
 dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False, has_label=False)
