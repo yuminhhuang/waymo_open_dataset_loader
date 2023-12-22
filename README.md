@@ -1,16 +1,18 @@
-# Pytorch dataset loader for Waymo Open Dataset
+# Pytorch dataset loader for Waymo Open Dataset LiDAR Segmentation task
+- version v2.0.0 of dataset
+- with RANGE image projection
 
 # Waymo Open Dataset
-[dataset](https://waymo.com/open/) [download](https://waymo.com/open/download/) [documentation](https://github.com/waymo-research/waymo-open-dataset)
+[Dataset](https://waymo.com/open/) [Download](https://waymo.com/open/download/) [Documentation](https://github.com/waymo-research/waymo-open-dataset)
 
 ## This tools use the v2.0.0 version of dataset
 [v2 documentation](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_v2.ipynb)
 
 # Requirements
 - torch
-- dask
-- waymo_open_dataset
-- numba
+- dask, for dataframe loading
+- waymo_open_dataset, official released api, based on tensorflow
+- numba, jit the python funtion during range projection
 
 # Usage
 ## Dataset Download
