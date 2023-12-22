@@ -64,8 +64,8 @@ o3d.visualization.draw_geometries([pcd])
 
 ## Different between `has_label=True` and `has_label=False`
 The parameter has_label decides how many pointcloud will be loaded.
-- If `has_label=True`, the subset of pointclouds in a sequence with semanticn labels will be loaded.
-- If `has_label=False`, all the pointcloud in the sequences will be loaded. 
+- If `has_label=True`, the subset of pointclouds in the sequences with semantic labels will be loaded.
+- If `has_label=False`, all the pointclouds in the sequences will be loaded. 
   
 Usually, the former is used with training and validation. And the latter is used for inference where no annotation is needed.
 
