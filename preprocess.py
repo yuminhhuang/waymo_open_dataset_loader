@@ -2,8 +2,8 @@
 # https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/v2/__init__.py
 
 import os
+import sys
 import numpy as np
-import torch
 import tqdm
 import dask.dataframe as dd
 # import pandas as pd
@@ -22,7 +22,7 @@ class WaymoPreprocess():
         else:
             raise ValueError("dataset not found: {}".format(self.root))
 
-        assert version in ['v2.0.0']
+        assert version in ['v2.0.0', 'v2.0.0-mini']
         assert split in ['train', 'val', 'test']
         self.path = ''
         if split == 'train':
@@ -233,40 +233,34 @@ def process_func_key(process_dict, row, process_root):
     inst_label.reshape((-1)).astype(np.int32).tofile(os.path.join(instance_path, f"{frame}.bin"))
 
     if "statics" not in process_dict.keys():
-        S_points_feature = []  # range intensity elongation x y z
+        S_points_feature_mean = []  # range intensity elongation x y z
         S_points_feature_std = []  # range intensity elongation x y z
-        S_semantic_label_cnt = torch.zeros(23, dtype=torch.int32)
-        S_beam_inclination_min_max = np.zeros(2, dtype=np.float32)
-        S_beam_inclination_values = np.zeros(64, dtype=np.float32)
+        S_semantic_label_cnt = np.zeros(23, dtype=np.int32)
         total_count = np.array([0], dtype=np.int32)
-        process_dict["statics"] = (S_points_feature, S_points_feature_std, S_semantic_label_cnt, S_beam_inclination_min_max, S_beam_inclination_values, total_count)
-    S_points_feature, S_points_feature_std, S_semantic_label_cnt, S_beam_inclination_min_max, S_beam_inclination_values, total_count = process_dict["statics"]
-    S_points_feature.append(points_feature.mean(0))
+        process_dict["statics"] = (S_points_feature_mean, S_points_feature_std, S_semantic_label_cnt, total_count)
+    S_points_feature_mean, S_points_feature_std, S_semantic_label_cnt, total_count = process_dict["statics"]
+    S_points_feature_mean.append(points_feature.mean(0))
     S_points_feature_std.append(points_feature.std(0))
-    S_semantic_label_cnt.scatter_add_(0, torch.tensor(sem_label, dtype=torch.int64), torch.ones(sem_label.shape, dtype=torch.int32))
-    S_beam_inclination_min_max[0] += lidar_calibration.beam_inclination.min
-    S_beam_inclination_min_max[1] += lidar_calibration.beam_inclination.max
-    S_beam_inclination_values[:] += lidar_calibration.beam_inclination.values
+    label, count = np.unique(sem_label, return_counts=True)
+    for lbl, cnt in zip(label, count):
+        S_semantic_label_cnt[lbl] += cnt
     total_count[:] += 1
 
 
 def process_finish_key(process_dict, process_root):
-    S_points_feature, S_points_feature_std, S_semantic_label_cnt, S_beam_inclination_min_max, S_beam_inclination_values, total_count = process_dict["statics"]
+    S_points_feature_mean, S_points_feature_std, S_semantic_label_cnt, total_count = process_dict["statics"]
     statics = f"""
 statics: 
 
 mapped: 
-points_feature: {S_points_feature}
+points_feature_mean: {S_points_feature_mean}
+points_feature_std: {S_points_feature_std}
 semantic_label_cnt: {S_semantic_label_cnt}
-beam_inclination_min_max: {S_beam_inclination_min_max}
-beam_inclination_values: {S_beam_inclination_values}
 total_count: {total_count}
 reduced: 
-points_feature: {np.stack(S_points_feature, axis=0).mean(0)}
-points_feature_std: {np.stack(S_points_feature_std, axis=0).mean(0) + np.stack(S_points_feature, axis=0).std(0)}
+points_feature_mean: {np.stack(S_points_feature_mean, axis=0).mean(0)}
+points_feature_std: {np.stack(S_points_feature_std, axis=0).mean(0) + np.stack(S_points_feature_mean, axis=0).std(0)}
 semantic_label_cnt: {S_semantic_label_cnt / S_semantic_label_cnt.sum()}
-beam_inclination_min_max: {S_beam_inclination_min_max / total_count}
-beam_inclination_values: {S_beam_inclination_values / total_count}
 total_count: {total_count}
     """
     with open(os.path.join(process_root, "preprocess_waymo_statics.txt"), "w") as f:
@@ -322,7 +316,8 @@ def process_func_calibration(process_dict, row, process_root):
 
 
 if __name__ == '__main__':
-    data_path = '/home/yuminghuang/dataset/waymo-mini'
+    assert len(sys.argv) == 2, "usage: python preprocess.py /path/to/your/waymo/dataset"
+    data_path = sys.argv[1]
 
     dataset = WaymoPreprocess(root=data_path, version='v2.0.0', split='train')
 

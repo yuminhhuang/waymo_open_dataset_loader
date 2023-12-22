@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from torch.utils import data
 
 
 map_name_from_segmentation_class_to_segmentation_index = {
@@ -40,11 +39,11 @@ map_name_from_segmentation_class_to_segmentation_index = {
 }
 
 
-class Waymo(data.Dataset):
+class Waymo():
     def __init__(self, root,
                  version='v2.0.0',
                  split='train',
-                 has_image=True,
+                 has_image=False,
                  has_label=True):
         self.root = root
         self.has_label = has_label

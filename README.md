@@ -3,19 +3,21 @@ Convert the `.parquet` files from v2.0.0 dataset into pointclouds and semantic a
 This tools will create a preprocessed dataset with:
 - training set:
   - 798 sequences
-  - 158081 pointclouds
-  - 23691 key pointclouds
-  - 23691 labels
-- valisation set:
+  - 158081 pointclouds in `process/training/pointcloud`
+  - 23691 key pointclouds in `process/training/pointcloud_key`
+  - 23691 labels in `process/training/semantic`, `process/training/instance`
+- validation set:
   - 202 sequences
-  - 39987 pointclouds
-  - 5976 key pointclouds
-  - 5976 labels
+  - 39987 pointclouds in `process/validation/pointcloud`
+  - 5976 key pointclouds in `process/validation/pointcloud_key`
+  - 5976 labels in `process/validation/semantic`, `process/validation/instance`
 - testing set:
   - 16 sequences
-  - 3101 pointclouds
+  - 3101 pointclouds in `process/validation/pointcloud`
 
-Besides, the corresponing `poses` are generated. If you want to include more information from dataset to facilitate your task, change preoprocess.py just like how `poses` do and change dataset.py acorrddingly.
+The lidar `calibration` for each sequence is generated in `process/[training/validation/testing]/calibration`, which is used during range projection. Besides, the corresponing `pose` for each `poinctcloud` is generated in `process/[training/validation/testing]/pose`, which is currently not used in this tool but can be used in odometry or localization tasks. If you want to include more information from dataset to facilitate your tasks, add some codes to `preoprocess.py` just like how `pose` does and change `dataset.py` acorrddingly.
+
+The generated `pointcloud` only use the first return of LiDAR scans, as the second return have points much lesser than the first return. For the case you really need the second return you should change the code acorrddingly.
 
 # Waymo Open Dataset
 [Dataset](https://waymo.com/open/) [Download](https://waymo.com/open/download/) [Documentation](https://github.com/waymo-research/waymo-open-dataset)
@@ -24,14 +26,15 @@ Besides, the corresponing `poses` are generated. If you want to include more inf
 [v2 documentation](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_v2.ipynb)
 
 # Requirements
-- torch
-- dask, for dataframe loading
-- waymo_open_dataset, official released api, based on tensorflow
-- numba, jit the python funtion during range projection
+- Requirements for preprocess only:
+  - dask, for dataframe loading
+  - waymo_open_dataset, official released api, based on tensorflow
+- Requirements for dataloader during model training & inference:
+  - numba, jit the python funtion during range projection
 
 # Usage
 ## Dataset Download
-Downloads [waymo_open_dataset_v_2_0_0](https://console.cloud.google.com/storage/browser/waymo_open_dataset_v_2_0_0) or use the scripts below for a mini version of waymo_open_dataset_v_2_0_0.
+Downloads [waymo_open_dataset_v_2_0_0](https://console.cloud.google.com/storage/browser/waymo_open_dataset_v_2_0_0) or use the scripts below to download a mini version of waymo_open_dataset_v_2_0_0.
 ```bash
 cd waymo-mini
 ./run.sh
@@ -39,9 +42,8 @@ cd waymo-mini
 You may need to init [gsutils](https://cloud.google.com/storage/docs/discover-object-storage-gcloud?hl=zh_CN&_ga=2.213582103.-2027393445.1701001832) at first.
 
 ## Dataset Preprocess
-Change `data_path` in `preprocess.py` to your location, and
 ```bash
-python preprocess.py
+python preprocess.py /path/to/your/waymo/dataset
 ```
 This will create a preprocessed dataset in the directory where your dataset locates.
 
@@ -62,12 +64,14 @@ pcd.colors = o3d.utility.Vector3dVector(np.asarray(dataset.sem_color_lut[sem_lab
 o3d.visualization.draw_geometries([pcd])
 ```
 
-## Different between `has_label=True` and `has_label=False`
-The parameter has_label decides how many pointcloud will be loaded.
-- If `has_label=True`, the subset of pointclouds in the sequences with semantic labels will be loaded.
-- If `has_label=False`, all the pointclouds in the sequences will be loaded. 
+### Parameters
+- split: `train`, `val`, or `test`.
+- has_image: Image loader not implemented yet, only `False` suportted.
+- has_label: Decides how many pointcloud will be loaded.
+  - If `has_label=True`, the subset of pointclouds in the sequences with semantic labels will be loaded.
+  - If `has_label=False`, all the pointclouds in the sequences will be loaded. 
   
-Usually, the former is used with training and validation. And the latter is used for inference where no annotation is needed.
+  Usually, the former is used with training and validation. And the latter is used for inference where no annotation is needed.
 
 ## Project pointclouds to RANGE images
 ```python
