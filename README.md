@@ -88,3 +88,17 @@ import matplotlib.pyplot as plt
 plt.imshow(proj_range)
 plt.show()
 ```
+
+## Pytorch Dataloader
+```python
+from waymo_open_dataset_loader.dataset import Waymo
+from waymo_open_dataset_loader.dataloader import WaymoLoader
+data_path = '/home/yuminghuang/dataset/waymo-mini'
+dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False, has_label=False)
+dataloader = WaymoLoader(dataset)
+data_dict = dataloader[0]
+
+import matplotlib.pyplot as plt
+plt.imshow(data_dict["proj_range_tensor"])
+plt.show()
+```

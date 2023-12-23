@@ -187,7 +187,7 @@ if __name__ == '__main__':
     plt.imshow(proj_range)
     plt.show()
 
-    from dataset_waymo import Waymo
+    from dataset import Waymo
     data_path = '/home/yuminghuang/dataset/waymo-mini'
     dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False, has_label=False)
     pointcloud, sem_label, inst_label = dataset.loadDataByIndex(0)
