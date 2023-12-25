@@ -1,23 +1,5 @@
 # Pytorch dataset loader of Waymo Open Dataset v2 for LiDAR Segmentation and range image projection
 Convert the `.parquet` files from v2.0.0 dataset into pointclouds and semantic and instance labels for LiDAR scans. This will be useful for LiDAR scans visualization, semantic segmentation learning with pytorch framework.
-This tools will create a preprocessed dataset with:
-- training set:
-  - 798 sequences
-  - 158081 pointclouds in `process/training/pointcloud`
-  - 23691 key pointclouds in `process/training/pointcloud_key`
-  - 23691 labels in `process/training/semantic`, `process/training/instance`
-- validation set:
-  - 202 sequences
-  - 39987 pointclouds in `process/validation/pointcloud`
-  - 5976 key pointclouds in `process/validation/pointcloud_key`
-  - 5976 labels in `process/validation/semantic`, `process/validation/instance`
-- testing set:
-  - 16 sequences
-  - 3101 pointclouds in `process/validation/pointcloud`
-
-The lidar `calibration` for each sequence is generated in `process/[training/validation/testing]/calibration`, which is used during range projection. Besides, the corresponing `pose` for each `poinctcloud` is generated in `process/[training/validation/testing]/pose`, which is currently not used in this tool but can be used in odometry or localization tasks. If you want to include more information from dataset to facilitate your tasks, add some codes to `preoprocess.py` just like how `pose` does and change `dataset.py` acorrddingly.
-
-The generated `pointcloud` only use the first return of LiDAR scans, as the second return have points much lesser than the first return. For the case you really need the second return you should change the code acorrddingly.
 
 # Waymo Open Dataset
 [Dataset](https://waymo.com/open/) [Download](https://waymo.com/open/download/) [Documentation](https://github.com/waymo-research/waymo-open-dataset)
@@ -45,7 +27,25 @@ You may need to init [gsutils](https://cloud.google.com/storage/docs/discover-ob
 ```bash
 python preprocess.py /path/to/your/waymo/dataset
 ```
-This will create a preprocessed dataset in the directory where your dataset locates.
+This will create a preprocessed dataset in the directory where your dataset locates, which contains:
+- training set:
+  - 798 sequences
+  - 158081 pointclouds in `process/training/pointcloud`
+  - 23691 key pointclouds in `process/training/pointcloud_key`
+  - 23691 labels in `process/training/semantic`, `process/training/instance`
+- validation set:
+  - 202 sequences
+  - 39987 pointclouds in `process/validation/pointcloud`
+  - 5976 key pointclouds in `process/validation/pointcloud_key`
+  - 5976 labels in `process/validation/semantic`, `process/validation/instance`
+- testing set:
+  - 16 sequences
+  - 3101 pointclouds in `process/validation/pointcloud`
+
+- The generated `pointcloud` only use the first return of LiDAR scans, as the second return have points much lesser than the first return. For the case you really need the second return you should change the code acorrddingly.
+- The lidar `calibration` for each sequence is generated in `process/[training/validation/testing]/calibration`, which is used during range projection. 
+- Besides, the corresponing `pose` for each poinctcloud is generated in `process/[training/validation/testing]/pose`, which is currently not used in this tool but can be used in odometry or localization tasks. 
+- If you want to include more information from dataset to facilitate your tasks, add some codes to `preoprocess.py` just like how `pose` does and change `dataset.py` acorrddingly.
 
 ## Load pointclouds and labels for training
 ```python
@@ -100,5 +100,8 @@ data_dict = dataloader[0]
 
 import matplotlib.pyplot as plt
 plt.imshow(data_dict["proj_range_tensor"])
+plt.show()
+print("dataloader.dataset.sem_color_lut", dataloader.dataset.sem_color_lut[data_dict["proj_sem_label_tensor"].numpy().astype(np.int32)])
+plt.imshow(dataloader.dataset.sem_color_lut[data_dict["proj_sem_label_tensor"].numpy().astype(np.int32)])
 plt.show()
 ```

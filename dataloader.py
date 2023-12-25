@@ -73,10 +73,13 @@ class WaymoLoader(Dataset):
 if __name__ == '__main__':
     from dataset import Waymo
     data_path = '/home/yuminghuang/dataset/waymo-mini'
-    dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False, has_label=False)
+    dataset = Waymo(root=data_path, version='v2.0.0', split='train', has_image=False, has_label=True)
     dataloader = WaymoLoader(dataset)
     data_dict = dataloader[0]
 
     import matplotlib.pyplot as plt
     plt.imshow(data_dict["proj_range_tensor"])
+    plt.show()
+    print("dataloader.dataset.sem_color_lut", dataloader.dataset.sem_color_lut[data_dict["proj_sem_label_tensor"].numpy().astype(np.int32)])
+    plt.imshow(dataloader.dataset.sem_color_lut[data_dict["proj_sem_label_tensor"].numpy().astype(np.int32)])
     plt.show()
