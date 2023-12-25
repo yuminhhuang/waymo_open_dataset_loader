@@ -80,6 +80,5 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     plt.imshow(data_dict["proj_range_tensor"])
     plt.show()
-    print("dataloader.dataset.sem_color_lut", dataloader.dataset.sem_color_lut[data_dict["proj_sem_label_tensor"].numpy().astype(np.int32)])
     plt.imshow(dataloader.dataset.sem_color_lut[data_dict["proj_sem_label_tensor"].numpy().astype(np.int32)])
     plt.show()
